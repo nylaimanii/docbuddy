@@ -1,7 +1,6 @@
-import DocBuddy from "./components/DocBuddy";
+import DocBuddy from "./components/DocBuddy.jsx";
 
-function App() {
+export default function App() {
   return <DocBuddy />;
 }
 
-export default App;
