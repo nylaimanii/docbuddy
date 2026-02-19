@@ -1,5 +1,8 @@
+# backend/utils/keywords.py
+
 RED_FLAG_KEYWORDS = [
     "variable interest",
+    "adjustable rate",
     "late fee",
     "penalty",
     "automatic renewal",
@@ -11,9 +14,9 @@ RED_FLAG_KEYWORDS = [
     "administrative fee",
     "origination fee",
     "balloon payment",
-    "adjustable rate",
     "teaser rate",
     "accrued",
     "sublet",
-    "interest"
+    "interest",
 ]
+

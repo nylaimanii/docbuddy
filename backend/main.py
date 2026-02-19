@@ -1,18 +1,26 @@
+# backend/main.py
+
 from fastapi import FastAPI
-from pydantic import BaseModel
-from backend.risk_engine import evaluate_document
+from fastapi.middleware.cors import CORSMiddleware
+from backend.models import DocumentRequest, AnalysisResponse
+from backend.services.analyzer import analyze_document
 
-app = FastAPI()
+app = FastAPI(title="DocBuddy API")
 
-class DocumentRequest(BaseModel):
-    text: str
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():
-    return {"message": "DocBuddy backend is alive 🧸"}
+    return {"message": "DocBuddy backend is running"}
 
-@app.post("/analyze")
-def analyze_doc(req: DocumentRequest):
-    result = evaluate_document(req.text)
+@app.post("/analyze", response_model=AnalysisResponse)
+def analyze(doc: DocumentRequest):
+    result = analyze_document(doc.text)
     return result
 
