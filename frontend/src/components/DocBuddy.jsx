@@ -1,89 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-
-// Red flag keywords
-const RED_FLAG_KEYWORDS = [
-  "variable interest",
-  "late fee",
-  "penalty",
-  "automatic renewal",
-  "pre-payment penalty",
-  "compound interest",
-  "hidden fee",
-  "processing fee",
-  "service charge",
-  "administrative fee",
-  "origination fee",
-  "balloon payment",
-  "adjustable rate",
-  "teaser rate",
-  "accrued",
-  "sublet",
-  "interest",
-];
-
-// Calculate risk score from 1 to 100
-const calculateRiskScore = (text) => {
-  let score = 100;
-  const lower = text.toLowerCase();
-  RED_FLAG_KEYWORDS.forEach((kw) => {
-    if (lower.includes(kw)) score -= 15;
-  });
-  return Math.max(score, 1);
-};
-
-// Simulate document evaluation
-const evaluateDocument = (text) => {
-  const riskScore = calculateRiskScore(text);
-
-  let verdict = "Good to go!";
-  let verdictColor = "bg-emerald-100 border-emerald-300 text-emerald-800";
-
-  if (riskScore < 50) {
-    verdict = "Wait, let's look closer";
-    verdictColor = "bg-rose-100 border-rose-300 text-rose-800";
-  } else if (riskScore < 85) {
-    verdict = "Check the fine print";
-    verdictColor = "bg-yellow-100 border-yellow-300 text-yellow-800";
-  }
-
-  const foundFlags = RED_FLAG_KEYWORDS.filter((kw) =>
-    text.toLowerCase().includes(kw)
-  );
-
-  return {
-    riskScore,
-    verdict,
-    verdictColor,
-    tldr: [
-      "Monthly payment is due on the 1st of each month.",
-      "There are fees mentioned in the fine print.",
-      "The term is 12 months with renewal language.",
-    ],
-    redFlags:
-      foundFlags.length > 0
-        ? foundFlags.map((f) => `Found risky term: "${f}"`)
-        : [],
-    paymentDates: [
-      { date: "1st of every month", description: "Payment due" },
-      { date: "End of lease", description: "Renew or move-out decision" },
-      { date: "5-day grace period", description: "Late fee window closes" },
-    ],
-    futureProjection: {
-      monthly: 1200,
-      years: 5,
-      interestRate: 0.06,
-    },
-  };
-};
-
-// Compute simple future total over N years
-const computeFutureTotal = ({ monthly, years, interestRate }) => {
-  const months = years * 12;
-  const base = monthly * months;
-  const interest = base * interestRate;
-  return Math.round(base + interest);
-};
+import { analyzeDocument } from "../services/api";
 
 // Safety Gauge component
 const SafetyGauge = ({ score }) => {
@@ -129,7 +46,7 @@ const SafetyGauge = ({ score }) => {
   );
 };
 
-// Mock camera view
+// Mock camera view for Live Scan
 const CameraView = ({ isScanning }) => (
   <motion.div
     className="relative bg-slate-900 rounded-2xl h-64 overflow-hidden"
@@ -166,37 +83,48 @@ export default function DocBuddy() {
   const [isScanning, setIsScanning] = useState(false);
   const fileInputRef = useRef(null);
 
-  const runMockFlow = () => {
-    setStep("processing");
-    setTimeout(() => {
-      const mockText =
-        "Apartment lease with late fee and variable interest. Automatic renewal and processing fee apply.";
-      const res = evaluateDocument(mockText);
+  // Call the real backend API
+  const runRealFlow = async () => {
+    try {
+      setStep("processing");
+
+      // For demo, send a sample text. You can replace this with real OCR later.
+      const text =
+        "Lease with late fee and variable interest and automatic renewal";
+
+      const res = await analyzeDocument(text);
+
       setResults(res);
       setStep("results");
-    }, 2200);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to analyze the document.");
+      setStep("upload");
+    }
   };
 
   const handleInputSelect = (type) => {
     setSelectedInput(type);
+
     if (type === "camera") {
       setIsScanning(true);
       setTimeout(() => {
         setIsScanning(false);
-        runMockFlow();
+        runRealFlow();
       }, 1600);
     } else if (type === "file") {
       fileInputRef.current?.click();
     } else {
-      runMockFlow();
+      runRealFlow();
     }
   };
 
   const handleFile = (file) => {
     if (!file) return;
-    runMockFlow();
+    runRealFlow();
   };
 
+  // Upload screen
   if (step === "upload") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 p-4">
@@ -263,6 +191,7 @@ export default function DocBuddy() {
     );
   }
 
+  // Processing screen
   if (step === "processing") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 p-4 flex items-center justify-center">
@@ -270,11 +199,13 @@ export default function DocBuddy() {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="text-6xl mb-4"
+            className="text-5xl mb-4"
           >
             Loading
           </motion.div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Scanning your document...</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Scanning your document...
+          </h2>
           <motion.p
             className="text-gray-600"
             animate={{ opacity: [0.5, 1, 0.5] }}
@@ -287,21 +218,26 @@ export default function DocBuddy() {
     );
   }
 
-  const total5y = computeFutureTotal({
-    monthly: results.futureProjection.monthly,
-    years: results.futureProjection.years,
-    interestRate: results.futureProjection.interestRate,
-  });
-
+  // Results screen
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 p-4">
       <div className="max-w-md mx-auto">
-        <motion.div className="text-center mb-6 pt-4" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+        <motion.div
+          className="text-center mb-6 pt-4"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
           <h1 className="text-2xl font-bold text-gray-800">DocBuddy Analysis</h1>
         </motion.div>
 
-        <motion.div className="bg-white rounded-2xl p-6 shadow-lg mb-4" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Safety Gauge</h3>
+        <motion.div
+          className="bg-white rounded-2xl p-6 shadow-lg mb-4"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+            Safety Gauge
+          </h3>
           <SafetyGauge score={results.riskScore} />
           <motion.div
             className={`mt-4 p-3 rounded-2xl border-2 text-center font-medium ${results.verdictColor}`}
@@ -313,11 +249,20 @@ export default function DocBuddy() {
           </motion.div>
         </motion.div>
 
-        <motion.div className="bg-white rounded-2xl p-6 shadow-lg mb-4" initial={{ x: -40, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+        <motion.div
+          className="bg-white rounded-2xl p-6 shadow-lg mb-4"
+          initial={{ x: -40, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+        >
           <h3 className="text-lg font-semibold text-gray-800 mb-3">The Lowdown</h3>
           <ul className="space-y-2">
             {results.tldr.map((p, i) => (
-              <motion.li key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1 }}>
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + i * 0.1 }}
+              >
                 <span className="text-emerald-500 mr-2">•</span>
                 <span className="text-gray-700">{p}</span>
               </motion.li>
@@ -326,11 +271,22 @@ export default function DocBuddy() {
         </motion.div>
 
         {results.redFlags.length > 0 && (
-          <motion.div className="bg-rose-50 rounded-2xl p-6 shadow-lg mb-4 border-2 border-rose-200" initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-            <h3 className="text-lg font-semibold text-rose-800 mb-3">Red Flag Alerts</h3>
+          <motion.div
+            className="bg-rose-50 rounded-2xl p-6 shadow-lg mb-4 border-2 border-rose-200"
+            initial={{ x: 40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+          >
+            <h3 className="text-lg font-semibold text-rose-800 mb-3">
+              Red Flag Alerts
+            </h3>
             <ul className="space-y-2">
               {results.redFlags.map((f, i) => (
-                <motion.li key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1 }}>
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                >
                   <span className="text-rose-700">{f}</span>
                 </motion.li>
               ))}
@@ -338,11 +294,23 @@ export default function DocBuddy() {
           </motion.div>
         )}
 
-        <motion.div className="bg-white rounded-2xl p-6 shadow-lg mb-4" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">The Deadline Map</h3>
+        <motion.div
+          className="bg-white rounded-2xl p-6 shadow-lg mb-4"
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            The Deadline Map
+          </h3>
           <div className="space-y-3">
             {results.paymentDates.map((d, i) => (
-              <motion.div key={i} className="flex justify-between items-center p-3 bg-blue-50 rounded-xl" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 + i * 0.1 }}>
+              <motion.div
+                key={i}
+                className="flex justify-between items-center p-3 bg-blue-50 rounded-xl"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 + i * 0.1 }}
+              >
                 <span className="font-medium text-gray-800">{d.date}</span>
                 <span className="text-sm text-gray-600">{d.description}</span>
               </motion.div>
@@ -350,14 +318,23 @@ export default function DocBuddy() {
           </div>
         </motion.div>
 
-        <motion.div className="bg-white rounded-2xl p-6 shadow-lg mb-6" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Future Math (5 years)</h3>
+        <motion.div
+          className="bg-white rounded-2xl p-6 shadow-lg mb-6"
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            Future Math
+          </h3>
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">${total5y.toLocaleString()}</div>
-            <div className="text-gray-600 mb-3">Estimated total with interest</div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">
+              ${results.futureProjection.totalCost?.toLocaleString?.() || "14,400"}
+            </div>
+            <div className="text-gray-600 mb-3">Estimated total cost</div>
             <div className="bg-blue-50 p-4 rounded-xl text-sm text-gray-700">
-              Monthly: ${results.futureProjection.monthly.toLocaleString()} <br />
-              Estimated interest: {(results.futureProjection.interestRate * 100).toFixed(1)}%
+              Monthly: ${results.futureProjection.monthlyBreakdown || "1,200"}
+              <br />
+              Additional fees: ${results.futureProjection.additionalFees || "200"}
             </div>
           </div>
         </motion.div>
@@ -378,3 +355,4 @@ export default function DocBuddy() {
     </div>
   );
 }
+
