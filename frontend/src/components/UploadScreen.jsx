@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 export default function UploadScreen({ onSubmit, error }) {
   const [text, setText] = useState("");
   const [showCamera, setShowCamera] = useState(false);
+  const [mode, setMode] = useState(null); // null | "text" | "file" | "image" | "camera"
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -20,6 +21,7 @@ export default function UploadScreen({ onSubmit, error }) {
         videoRef.current.srcObject = stream;
       }
       setShowCamera(true);
+      setMode("camera");
     } catch (err) {
       alert("Could not access camera. Please allow camera permissions.");
     }
@@ -48,6 +50,7 @@ export default function UploadScreen({ onSubmit, error }) {
 
     // Mock OCR result for now
     setText("Scanned from camera. The rent is $1200. Late fee is $75 after 5 days.");
+    setMode("text");
   }
 
   // File upload (text files)
@@ -56,13 +59,17 @@ export default function UploadScreen({ onSubmit, error }) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => setText(event.target.result || "");
+    reader.onload = (event) => {
+      setText(event.target.result || "");
+      setMode("text");
+    };
     reader.readAsText(file);
   }
 
   // Photo gallery (mock OCR for now)
   function handleImageUpload() {
     setText("Scanned from image. The lease is 12 months. Late fee is $75.");
+    setMode("text");
   }
 
   // Cleanup camera on unmount
@@ -100,21 +107,30 @@ export default function UploadScreen({ onSubmit, error }) {
 
           <button
             className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => imageInputRef.current.click()}
+            onClick={() => {
+              setMode("image");
+              imageInputRef.current.click();
+            }}
           >
             Photo Gallery
           </button>
 
           <button
             className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => fileInputRef.current.click()}
+            onClick={() => {
+              setMode("file");
+              fileInputRef.current.click();
+            }}
           >
             Upload File
           </button>
 
           <button
             className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => setText("")}
+            onClick={() => {
+              setText("");
+              setMode("text");
+            }}
           >
             Paste Text
           </button>
@@ -156,21 +172,26 @@ export default function UploadScreen({ onSubmit, error }) {
           </div>
         )}
 
-        <textarea
-          rows={8}
-          className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-          placeholder="Paste or load your document text here..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+        {/* Text area only shows after a mode is chosen */}
+        {mode === "text" && (
+          <>
+            <textarea
+              rows={8}
+              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+              placeholder="Paste or load your document text here..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
 
-        <button
-          onClick={() => onSubmit(text)}
-          disabled={!text.trim()}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl transition shadow disabled:opacity-50"
-        >
-          Analyze
-        </button>
+            <button
+              onClick={() => onSubmit(text)}
+              disabled={!text.trim()}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl transition shadow disabled:opacity-50"
+            >
+              Analyze
+            </button>
+          </>
+        )}
 
         {error && <p className="text-red-500 mt-3">{error}</p>}
       </div>
