@@ -1,23 +1,22 @@
 import React from "react";
 
-export default function Splash({ onContinue }) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7e8] text-center p-6">
-      <h1 className="text-5xl font-bold mb-4">DocBuddy</h1>
-      <p className="text-lg text-slate-600 mb-8">
-        Understand before you sign.
-      </p>
+export default function Splash({ onStart }) {
+  const heroImage = "/favicon.png"; // from frontend/public/favicon.png
 
-      {/* Opening Art from public folder */}
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7e8] p-6 text-center">
+      <h1 className="text-5xl font-bold mb-4">DocBuddy</h1>
+      <p className="text-lg mb-6">Understand before you sign.</p>
+
       <img
-        src="/favicon.png"
-        alt="DocBuddy opening art"
-        className="max-w-xs md:max-w-md mb-8 rounded-xl shadow"
+        src={heroImage}
+        alt="DocBuddy art"
+        className="max-w-md w-full mb-8 rounded-2xl shadow"
       />
 
       <button
-        onClick={onContinue}
-        className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-lg font-semibold transition"
+        onClick={onStart}
+        className="px-8 py-4 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
       >
         Get Started
       </button>

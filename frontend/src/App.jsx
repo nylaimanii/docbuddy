@@ -17,7 +17,7 @@ export default function App() {
       const res = await fetch("http://127.0.0.1:8000/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text })
       });
 
       if (!res.ok) throw new Error("Server error");
@@ -26,14 +26,13 @@ export default function App() {
       setResult(data);
       setStep("results");
     } catch (e) {
-      console.error(e);
-      setError("Failed to reach server. Is the backend running?");
+      setError("Failed to reach server.");
       setStep("upload");
     }
   }
 
   if (step === "splash") {
-    return <Splash onContinue={() => setStep("upload")} />;
+    return <Splash onStart={() => setStep("upload")} />;
   }
 
   if (step === "upload") {
