@@ -6,10 +6,10 @@ export default function SafetyGauge({ score = 0 }) {
   if (score < 50) status = "Wait, let's look closer";
 
   return (
-    <div>
-      <h3>Safety Score</h3>
-      <p>Score: {score}</p>
-      <p>Status: {status}</p>
+    <div className="mb-4 p-4 bg-slate-50 rounded-xl">
+      <h3 className="font-semibold text-slate-700">Safety Score</h3>
+      <p className="text-2xl font-bold text-blue-500">{score}</p>
+      <p className="text-slate-600">{status}</p>
     </div>
   );
 }

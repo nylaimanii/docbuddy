@@ -1,46 +1,35 @@
-import React, { useState, useRef } from "react";
+return (
+  <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="card max-w-xl w-full">
+      <h1 className="text-3xl font-bold text-blue-500 mb-2">DocBuddy</h1>
+      <p className="text-slate-600 mb-4">Add your document to analyze:</p>
 
-export default function UploadScreen({ onSubmit, error }) {
-  const [text, setText] = useState("");
-  const fileInputRef = useRef(null);
-  const imageInputRef = useRef(null);
-
-  function handleFileUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setText(event.target.result);
-    };
-    reader.readAsText(file);
-  }
-
-  function handleImageUpload() {
-    setText("Mock OCR text from image. The rent is $1200. Late fee is $75 after 5 days.");
-  }
-
-  function handleLiveCamera() {
-    setText("Mock camera scan text. Lease is 12 months. Late fee is $75.");
-  }
-
-  return (
-    <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
-      <h1>DocBuddy</h1>
-      <p>Choose how to add your document:</p>
-
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button onClick={handleLiveCamera}>Live Camera</button>
-        <button onClick={() => imageInputRef.current.click()}>Photo Gallery</button>
-        <button onClick={() => fileInputRef.current.click()}>Upload File</button>
-        <button onClick={() => setText("")}>Paste Text</button>
+      <div className="flex gap-3 flex-wrap mb-4">
+        <button className="btn-secondary" onClick={handleLiveCamera}>
+          Live Camera
+        </button>
+        <button
+          className="btn-secondary"
+          onClick={() => imageInputRef.current.click()}
+        >
+          Photo Gallery
+        </button>
+        <button
+          className="btn-secondary"
+          onClick={() => fileInputRef.current.click()}
+        >
+          Upload File
+        </button>
+        <button className="btn-secondary" onClick={() => setText("")}>
+          Paste Text
+        </button>
       </div>
 
       <input
         type="file"
         accept=".txt"
         ref={fileInputRef}
-        style={{ display: "none" }}
+        className="hidden"
         onChange={handleFileUpload}
       />
 
@@ -48,29 +37,27 @@ export default function UploadScreen({ onSubmit, error }) {
         type="file"
         accept="image/*"
         ref={imageInputRef}
-        style={{ display: "none" }}
+        className="hidden"
         onChange={handleImageUpload}
       />
 
-      <div style={{ marginTop: "20px" }}>
-        <textarea
-          rows={10}
-          style={{ width: "100%", padding: "10px" }}
-          placeholder="Paste or load your document text here..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-      </div>
+      <textarea
+        rows={8}
+        className="input-box mb-4"
+        placeholder="Paste or load your document text here..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
 
       <button
         onClick={() => onSubmit(text)}
         disabled={!text.trim()}
-        style={{ marginTop: "10px", padding: "10px 20px" }}
+        className="btn-primary w-full"
       >
         Analyze
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500 mt-3">{error}</p>}
     </div>
-  );
-}
+  </div>
+);
