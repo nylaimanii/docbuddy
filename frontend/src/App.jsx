@@ -1,28 +1,62 @@
-import { useState, useEffect } from "react";
-import PopScreen from "./components/popScreen";
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import IntroSplash from "./components/IntroSplash";
+import HomePage from "./components/HomePage";
 
-function App() {
-  const [showSplash, setShowSplash] = useState(true);
+export default function App() {
+  const videoRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
+    const video = videoRef.current;
 
-    return () => clearTimeout(timer);
+    const updateProgress = () => {
+      if (!video.duration) return;
+
+      // progress from 0 → 1
+     const percent = Math.min(video.currentTime / 3, 1);
+setProgress(percent);
+    };
+
+    video.addEventListener("timeupdate", updateProgress);
+
+    return () => {
+      video.removeEventListener("timeupdate", updateProgress);
+    };
   }, []);
 
   return (
-    <>
-      {showSplash && <PopScreen />}
+    <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
 
-      {!showSplash && (
-        <div className="min-h-screen flex items-center justify-center">
-          <h1>Main App</h1>
-        </div>
-      )}
-    </>
+      {/* Homepage */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "white",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: 40,
+        }}
+      >
+        HOME PAGE HERE
+      </div>
+
+      {/* Splash */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "100%",
+          overflow: "hidden",
+          width: `${100 - progress * 100}%`,
+        }}
+      >
+        <IntroSplash ref={videoRef} />
+      </motion.div>
+
+    </div>
   );
 }
-
-export default App;
