@@ -1,23 +1,43 @@
 # backend/risk_engine.py
 
+import re
 from backend.utils.keywords import RED_FLAG_KEYWORDS
 
-def calculate_risk_score(text: str) -> int:
+import re
+from backend.utils.keywords import RED_FLAG_KEYWORDS
+
+def calculate_risk_score(text: str) -> dict:
     score = 100
-    lower_text = text.lower()
+    category_breakdown = {}
 
-    for keyword in RED_FLAG_KEYWORDS:
-        if keyword in lower_text:
-            score -= 15
+    for category, keywords in RED_FLAG_KEYWORDS.items():
+        category_total = 0
 
-    return max(score, 1)
+        for keyword, weight in keywords.items():
+
+            matches = re.findall(keyword, text, flags=re.IGNORECASE)
+            occurrences = len(matches)
+
+            if occurrences > 0:
+                pen = min(weight * occurrences, weight * 3)
+                category_total += pen
+
+        if category_total > 0:
+            category_breakdown[category] = category_total
+
+        score -= category_total
+
+    return {
+        "score": max(score, 1),
+        "category_breakdown": category_breakdown
+    }
 
 
 def explain_red_flags(text: str):
     explanations = []
     lower_text = text.lower()
 
-    for keyword in RED_FLAG_KEYWORDS:
+    for keyword in RED_FLAG_KEYWORDS.keys():
         if keyword in lower_text:
             if keyword in ["variable interest", "adjustable rate"]:
                 explanations.append(
@@ -41,4 +61,3 @@ def explain_red_flags(text: str):
                 )
 
     return explanations
-
