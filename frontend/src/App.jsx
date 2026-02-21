@@ -1,29 +1,12 @@
-import { useState, useEffect } from "react";
-import PopScreen from "./components/popScreen";
+import React, { useState } from "react";
+import UploadScreen from "./components/UploadScreen";
+import Processing from "./components/Processing";
+import Results from "./components/Results";
 
-function App() {
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <>
-      {showSplash && <PopScreen />}
-
-      {!showSplash && (
-        <div className="min-h-screen flex items-center justify-center">
-          <h1>Main App</h1>
-        </div>
-      )}
-    </>
-  );
-}
+export default function App() {
+  const [step, setStep] = useState("upload"); // "upload" | "processing" | "results"
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   async function analyzeText(text) {
     setStep("processing");
@@ -36,12 +19,15 @@ function App() {
         body: JSON.stringify({ text }),
       });
 
-      if (!res.ok) throw new Error("Server error");
+      if (!res.ok) {
+        throw new Error("Server error");
+      }
 
       const data = await res.json();
       setResult(data);
       setStep("results");
     } catch (e) {
+      console.error(e);
       setError("Failed to reach server. Is the backend running?");
       setStep("upload");
     }
@@ -60,3 +46,4 @@ function App() {
   }
 
   return null;
+}
