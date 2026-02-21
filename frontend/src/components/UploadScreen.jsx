@@ -1,59 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useState } from "react";
 
 export default function UploadScreen({ onSubmit, error }) {
+  const [mode, setMode] = useState(null); // null | "text"
   const [text, setText] = useState("");
-  const [showCamera, setShowCamera] = useState(false);
-  const [mode, setMode] = useState(null); // null | "text" | "file" | "image" | "camera"
-
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const streamRef = useRef(null);
 
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
 
-  // Start camera
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setShowCamera(true);
-      setMode("camera");
-    } catch (err) {
-      alert("Could not access camera. Please allow camera permissions.");
-    }
+  function handleAnalyze() {
+    if (!text.trim()) return;
+    onSubmit(text);
   }
 
-  // Stop camera
-  function stopCamera() {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
-    setShowCamera(false);
-  }
-
-  // Capture photo
-  function capturePhoto() {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    stopCamera();
-
-    // Mock OCR result for now
-    setText("Scanned from camera. The rent is $1200. Late fee is $75 after 5 days.");
-    setMode("text");
-  }
-
-  // File upload (text files)
   function handleFileUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -66,71 +24,55 @@ export default function UploadScreen({ onSubmit, error }) {
     reader.readAsText(file);
   }
 
-  // Photo gallery (mock OCR for now)
-  function handleImageUpload() {
-    setText("Scanned from image. The lease is 12 months. Late fee is $75.");
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Mock OCR for now
+    setText("Mock OCR text from image. Rent is $1200. Late fee is $75 after 5 days.");
     setMode("text");
   }
 
-  // Cleanup camera on unmount
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
+  function handleLiveCamera() {
+    // Mock camera scan for now
+    setText("Mock camera scan text. Lease is 12 months. Late fee is $75.");
+    setMode("text");
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-xl w-full">
-        {/* Header */}
-        <div
-          className="rounded-xl p-4 mb-4 text-white"
-          style={{
-            background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
-          }}
-        >
-          <h1 className="text-3xl font-bold">DocBuddy</h1>
-          <p className="text-blue-100">Understand before you sign</p>
-        </div>
+    <div className="min-h-screen flex justify-center items-start bg-[#fff7e8] p-6">
+      <div className="max-w-2xl w-full">
+        <h1 className="text-4xl font-bold mb-2">DocBuddy</h1>
+        <p className="text-slate-600 mb-6">Understand before you sign</p>
 
-        <p className="text-slate-600 mb-4">Add your document to analyze:</p>
+        <h2 className="text-lg font-semibold mb-3">Add your document to analyze:</h2>
 
-        <div className="flex gap-3 flex-wrap mb-4">
+        {/* Buttons */}
+        <div className="flex flex-wrap gap-3 mb-6">
           <button
-            className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={startCamera}
+            onClick={handleLiveCamera}
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100"
           >
             Live Camera
           </button>
 
           <button
-            className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => {
-              setMode("image");
-              imageInputRef.current.click();
-            }}
+            onClick={() => imageInputRef.current.click()}
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100"
           >
             Photo Gallery
           </button>
 
           <button
-            className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => {
-              setMode("file");
-              fileInputRef.current.click();
-            }}
+            onClick={() => fileInputRef.current.click()}
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100"
           >
             Upload File
           </button>
 
           <button
-            className="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-xl transition border border-blue-100"
-            onClick={() => {
-              setText("");
-              setMode("text");
-            }}
+            onClick={() => setMode("text")}
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100"
           >
             Paste Text
           </button>
@@ -141,7 +83,7 @@ export default function UploadScreen({ onSubmit, error }) {
           type="file"
           accept=".txt"
           ref={fileInputRef}
-          className="hidden"
+          style={{ display: "none" }}
           onChange={handleFileUpload}
         />
 
@@ -149,51 +91,32 @@ export default function UploadScreen({ onSubmit, error }) {
           type="file"
           accept="image/*"
           ref={imageInputRef}
-          className="hidden"
+          style={{ display: "none" }}
           onChange={handleImageUpload}
         />
 
-        {/* Camera Preview */}
-        {showCamera && (
-          <div className="mb-4">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="w-full rounded-xl mb-2"
-            />
-            <button
-              onClick={capturePhoto}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition"
-            >
-              Capture Photo
-            </button>
-            <canvas ref={canvasRef} className="hidden" />
-          </div>
-        )}
-
-        {/* Text area only shows after a mode is chosen */}
+        {/* Text box only when mode === "text" */}
         {mode === "text" && (
-          <>
+          <div className="mb-4">
             <textarea
-              rows={8}
-              className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+              className="w-full h-48 p-4 border-2 border-orange-400 rounded-xl bg-[#fff7e8] focus:outline-none"
               placeholder="Paste or load your document text here..."
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-
-            <button
-              onClick={() => onSubmit(text)}
-              disabled={!text.trim()}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl transition shadow disabled:opacity-50"
-            >
-              Analyze
-            </button>
-          </>
+          </div>
         )}
 
-        {error && <p className="text-red-500 mt-3">{error}</p>}
+        {error && <p className="text-red-600 mb-2">{error}</p>}
+
+        {mode === "text" && (
+          <button
+            onClick={handleAnalyze}
+            className="mt-2 px-6 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
+          >
+            Analyze
+          </button>
+        )}
       </div>
     </div>
   );

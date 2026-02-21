@@ -4,24 +4,20 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 import os
 
-# Gemini SDK (deprecated warning is OK for now)
 import google.generativeai as genai
 
-# ✅ FIXED IMPORT
 from backend.prompt_logic import build_analysis_prompt
 
 app = FastAPI()
 
-# CORS so your React frontend can call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for hackathon/demo; lock this down later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -40,38 +36,45 @@ async def analyze_document(req: AnalyzeRequest):
     prompt = build_analysis_prompt(text)
 
     try:
-        # Call Gemini
         response = model.generate_content(prompt)
-
-        # Get raw text from model
         raw_text = response.text.strip()
-
-        # Try to parse JSON
         data = json.loads(raw_text)
 
-        # Ensure required fields exist (basic safety)
         result = {
             "summary": data.get("summary", "No summary available."),
             "pros": data.get("pros", []),
             "cons": data.get("cons", []),
+            "apr": data.get("apr"),
+            "interestRate": data.get("interestRate"),
+            "termMonths": data.get("termMonths"),
+            "fees": data.get("fees", []),
+            "prepaymentPenalty": data.get("prepaymentPenalty"),
+            "redFlags": data.get("redFlags", []),
             "deadlines": data.get("deadlines", []),
             "futureMath": data.get("futureMath", {"monthly": 0, "yearly": 0}),
         }
 
         return result
 
-    except Exception as e:
-        # Fallback mock data so demo never breaks
+    except Exception:
         return {
             "summary": "This document appears to be a financial agreement that explains payments, fees, and basic rules you need to follow.",
             "pros": [
                 "The main costs are clearly stated.",
-                "The agreement explains your responsibilities upfront."
+                "The agreement explains your responsibilities upfront.",
+                "You can understand what happens if you miss payments."
             ],
             "cons": [
                 "There are extra fees if you pay late.",
-                "Some terms could cost you more money over time."
+                "Some terms could cost you more money over time.",
+                "The agreement may be expensive compared to other options."
             ],
+            "apr": None,
+            "interestRate": None,
+            "termMonths": None,
+            "fees": [],
+            "prepaymentPenalty": None,
+            "redFlags": [],
             "deadlines": [
                 "Rent is due on the 1st of every month.",
                 "Late fees apply after 5 days."

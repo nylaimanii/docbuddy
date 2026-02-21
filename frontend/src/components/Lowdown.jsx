@@ -1,18 +1,27 @@
-import React from "react";
-
-export default function Lowdown({ items = [] }) {
+export default function Lowdown({ summary, pros = [], cons = [] }) {
   return (
-    <div className="mb-4 p-4 bg-slate-50 rounded-xl">
-      <h3 className="font-semibold text-slate-700 mb-2">The Lowdown</h3>
-      {items.length === 0 ? (
-        <p className="text-slate-600">No summary available.</p>
-      ) : (
-        <ul className="list-disc pl-5 text-slate-700">
-          {items.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      )}
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold mb-2">Summary</h2>
+
+      <p className="text-slate-700 mb-4">
+        {summary || "No summary available."}
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-semibold text-green-600 mb-2">Pros</h3>
+          <ul className="list-disc list-inside text-slate-700">
+            {pros.length > 0 ? pros.map((p, i) => <li key={i}>{p}</li>) : <li>No pros detected.</li>}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-red-600 mb-2">Cons</h3>
+          <ul className="list-disc list-inside text-slate-700">
+            {cons.length > 0 ? cons.map((c, i) => <li key={i}>{c}</li>) : <li>No cons detected.</li>}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
