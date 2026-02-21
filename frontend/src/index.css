@@ -2,27 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global app look (Venmo-ish) */
+/* App background */
 body {
   @apply bg-slate-50 text-slate-900 font-sans;
 }
 
-/* Reusable card style */
+/* Venmo-like gradient header */
+.app-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Card */
 .card {
-  @apply bg-white rounded-2xl shadow-md p-6;
+  @apply bg-white rounded-2xl shadow-lg p-6;
 }
 
 /* Primary button */
 .btn-primary {
-  @apply bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition;
+  @apply bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl transition shadow;
 }
 
 /* Secondary button */
 .btn-secondary {
-  @apply bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2 px-4 rounded-xl transition;
+  @apply bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium py-2 px-4 rounded-xl transition border border-blue-100;
 }
 
-/* Textarea / inputs */
+/* Textarea / input */
 .input-box {
-  @apply w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400;
+  @apply w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400;
 }
