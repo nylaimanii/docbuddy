@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import Splash from "./components/Splash";
 import UploadScreen from "./components/UploadScreen";
 import Processing from "./components/Processing";
 import Results from "./components/Results";
 
 export default function App() {
-  const [step, setStep] = useState("upload"); // "upload" | "processing" | "results"
+  const [step, setStep] = useState("splash"); // splash | upload | processing | results
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
@@ -19,9 +20,7 @@ export default function App() {
         body: JSON.stringify({ text }),
       });
 
-      if (!res.ok) {
-        throw new Error("Server error");
-      }
+      if (!res.ok) throw new Error("Server error");
 
       const data = await res.json();
       setResult(data);
@@ -31,6 +30,10 @@ export default function App() {
       setError("Failed to reach server. Is the backend running?");
       setStep("upload");
     }
+  }
+
+  if (step === "splash") {
+    return <Splash onContinue={() => setStep("upload")} />;
   }
 
   if (step === "upload") {
