@@ -1,6 +1,8 @@
 import React from "react";
-import DocBuddy from "./components/DocBuddy.jsx";
+import DocBuddy from "./components/DocBuddy";
 
-export default function App() {
+function App() {
   return <DocBuddy />;
 }
+
+export default App;
