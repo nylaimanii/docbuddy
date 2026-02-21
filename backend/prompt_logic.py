@@ -1,33 +1,28 @@
 def build_analysis_prompt(document_text: str) -> str:
     return f"""
-You are DocBuddy, a helpful assistant that analyzes financial documents.
+You are a helpful assistant that explains financial documents in simple, clear language.
 
-Return ONLY valid JSON in this exact format:
+Given the document below, return ONLY valid JSON in this exact format:
 
 {{
-  "summary": string,
-  "pros": [string, string, string],
-  "cons": [string, string, string],
-  "apr": number or null,
-  "interestRate": number or null,
-  "termMonths": number or null,
-  "fees": [{{ "name": string, "amount": number or null }}],
-  "prepaymentPenalty": boolean or null,
-  "redFlags": string[],
-  "deadlines": string[],
-  "futureMath": object
+  "summary": "2-4 sentences summarizing what this document is about in simple terms.",
+  "pros": ["list of pros in simple language"],
+  "cons": ["list of cons in simple language"],
+  "deadlines": ["list any important dates or deadlines if mentioned"],
+  "futureMath": {{
+    "monthly": number,
+    "yearly": number
+  }}
 }}
 
 Rules:
-- "summary" must be a short, plain-English paragraph explaining the document.
-- "pros" must be EXACTLY 3 items.
-- "cons" must be EXACTLY 3 items.
-- Base pros/cons on financial quality (rates, fees, risk, flexibility).
-- If a value is missing, use null.
-- Do NOT include any text outside the JSON.
+- Be friendly and clear, not cringe.
+- Use simple language.
+- If something is not found, use empty lists or 0.
+- Output ONLY JSON. No markdown. No extra text.
 
 Document:
-<<<
+\"\"\"
 {document_text}
->>>
+\"\"\"
 """
