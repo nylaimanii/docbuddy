@@ -86,8 +86,13 @@ export default function HomePage({ onAnalyze }) {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-700 flex flex-col items-center justify-center px-6">
-      <h1 className="text-5xl font-semibold mb-12 text-gray-800">DocBuddy</h1>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: "#f7f1e3", color: "#0f172a" }}
+    >
+      <h1 className="text-5xl font-semibold mb-12" style={{ color: "#0f172a" }}>
+        DocBuddy
+      </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-xl mb-10">
         <button onClick={handlePasteText} className="btn-primary h-24 text-xl">
@@ -132,6 +137,11 @@ export default function HomePage({ onAnalyze }) {
             placeholder="Paste or type your text here..."
             value={text}
             onChange={(e) => setText(e.target.value)}
+            style={{
+              background: "#ffffff",
+              borderColor: "#2aa198",
+              color: "#0f172a",
+            }}
           />
           <button onClick={submitText} className="btn-primary self-end px-6 py-3">
             Analyze Text
@@ -146,7 +156,8 @@ export default function HomePage({ onAnalyze }) {
             autoPlay
             muted
             playsInline
-            className="w-80 h-60 bg-black rounded-xl border"
+            className="w-80 h-60 rounded-xl border"
+            style={{ borderColor: "#2aa198", background: "#0f172a" }}
           />
           <button onClick={takePhoto} className="btn-primary px-6 py-3">
             Take Photo

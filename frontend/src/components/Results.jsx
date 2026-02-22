@@ -3,12 +3,9 @@ import React from "react";
 export default function Results({ result, onBack }) {
   if (!result) return null;
 
-  // You can change how this score is calculated later
-  // For now we fake a score from 0–100
-  const score = result.score ?? 78; // default to 78 if not provided
+  const score = result.score ?? 78;
 
-  // Decide color based on score
-  let circleColor = "#22c55e"; // green
+  let circleColor = "#2aa198"; // teal = good
   let label = "Good Choice";
 
   if (score < 40) {
@@ -23,14 +20,13 @@ export default function Results({ result, onBack }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "#fffaf0",
+        background: "#f7f1e3",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: 24,
-        fontFamily: "Courier New, monospace",
-        color: "#1f2933",
+        color: "#0f172a",
       }}
     >
       {/* SCORE CIRCLE */}
@@ -47,25 +43,25 @@ export default function Results({ result, onBack }) {
           fontSize: 48,
           fontWeight: "bold",
           marginBottom: 16,
+          boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
         }}
       >
         {score}
       </div>
 
       {/* LABEL */}
-      <div style={{ fontSize: 24, marginBottom: 24 }}>
-        {label}
-      </div>
+      <div style={{ fontSize: 24, marginBottom: 24 }}>{label}</div>
 
       {/* SUMMARY BOX */}
       <div
         style={{
           maxWidth: 700,
           background: "white",
-          border: "1px solid #e5e7eb",
+          border: "1px solid #2aa198",
           borderRadius: 16,
           padding: 24,
           marginBottom: 24,
+          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
         }}
       >
         <h2 style={{ fontSize: 24, marginBottom: 12 }}>Summary</h2>
@@ -98,22 +94,21 @@ export default function Results({ result, onBack }) {
       <button
         onClick={onBack}
         style={{
-          border: "2px solid #2563eb",
+          border: "2px solid #2aa198",
           backgroundColor: "#ffffff",
-          color: "#2563eb",
+          color: "#0f172a",
           fontWeight: 600,
           borderRadius: 12,
           padding: "12px 24px",
           cursor: "pointer",
-          fontFamily: "Courier New, monospace",
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = "#2563eb";
+          e.target.style.backgroundColor = "#2aa198";
           e.target.style.color = "#ffffff";
         }}
         onMouseLeave={(e) => {
           e.target.style.backgroundColor = "#ffffff";
-          e.target.style.color = "#2563eb";
+          e.target.style.color = "#0f172a";
         }}
       >
         Analyze Another Document
