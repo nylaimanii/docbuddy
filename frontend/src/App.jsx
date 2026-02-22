@@ -11,9 +11,6 @@ export default function App() {
     const video = videoRef.current;
 
     const updateProgress = () => {
-      if (!video.duration) return;
-
-      // progress from 0 → 1
       const percent = Math.min(video.currentTime / 3, 1);
       setProgress(percent);
     };
@@ -26,25 +23,26 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
+  <div className="relative h-screen overflow-hidden">
 
-      {/* Homepage */}
+    {/* HOME PAGE (fade in) */}
+    <motion.div
+      className="absolute inset-0"
+      animate={{ opacity: progress }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+    >
       <HomePage />
+    </motion.div>
 
-      {/* Splash */}
-      <motion.div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          height: "100%",
-          overflow: "hidden",
-          width: `${100 - progress * 100}%`,
-        }}
-      >
-        <IntroSplash ref={videoRef} />
-      </motion.div>
+    {/* SPLASH (fade out only) */}
+    <motion.div
+      className="absolute inset-0 z-10"
+      animate={{ opacity: 1 - progress }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+    >
+      <IntroSplash ref={videoRef} />
+    </motion.div>
 
-    </div>
-  );
+  </div>
+);
 }

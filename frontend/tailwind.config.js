@@ -6,6 +6,13 @@ export default {
   ],
   theme: { //Test line 2
     extend: {
+      theme: {
+  extend: {
+    fontFamily: {
+      yeseva: ["Yeseva One", "serif"],
+    },
+  },
+},
       colors: {
         primary: "#0F766E",
         primaryLight: "#14B8A6",

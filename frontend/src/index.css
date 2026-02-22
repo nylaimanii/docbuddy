@@ -1,3 +1,23 @@
+@font-face {
+  font-family: "Pantalone";
+  src: url("./assets/Pantalone.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Strongmark";
+  src: url("./assets/Strongmark.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Corn";
+  src: url("./assets/Corn.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
