@@ -46,7 +46,7 @@ export default function HomePage({ onAnalyze }) {
     stopCamera();
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+        video: true,
         audio: false,
       });
       setStream(mediaStream);
@@ -94,21 +94,38 @@ export default function HomePage({ onAnalyze }) {
         DocBuddy
       </h1>
 
+      {/* BUTTON GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-xl mb-10">
-        <button onClick={handlePasteText} className="btn-primary h-24 text-xl">
+        <button
+          onClick={handlePasteText}
+          className="btn-primary h-24 text-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+        >
           Paste Text
         </button>
-        <button onClick={handleUploadFile} className="btn-primary h-24 text-xl">
+
+        <button
+          onClick={handleUploadFile}
+          className="btn-primary h-24 text-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+        >
           Upload File
         </button>
-        <button onClick={handleLiveCamera} className="btn-primary h-24 text-xl">
+
+        <button
+          onClick={handleLiveCamera}
+          className="btn-primary h-24 text-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+        >
           Live Camera
         </button>
-        <button onClick={handlePhotoGallery} className="btn-primary h-24 text-xl">
+
+        <button
+          onClick={handlePhotoGallery}
+          className="btn-primary h-24 text-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+        >
           Photo Gallery
         </button>
       </div>
 
+      {/* Hidden inputs */}
       <input
         ref={fileInputRef}
         type="file"
@@ -130,6 +147,7 @@ export default function HomePage({ onAnalyze }) {
         }}
       />
 
+      {/* TEXT MODE */}
       {mode === "text" && (
         <div className="w-full max-w-2xl flex flex-col gap-4">
           <textarea
@@ -143,12 +161,16 @@ export default function HomePage({ onAnalyze }) {
               color: "#0f172a",
             }}
           />
-          <button onClick={submitText} className="btn-primary self-end px-6 py-3">
+          <button
+            onClick={submitText}
+            className="btn-primary self-end px-6 py-3 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+          >
             Analyze Text
           </button>
         </div>
       )}
 
+      {/* CAMERA MODE */}
       {mode === "camera" && (
         <div className="flex flex-col items-center gap-4">
           <video
@@ -156,10 +178,13 @@ export default function HomePage({ onAnalyze }) {
             autoPlay
             muted
             playsInline
-            className="w-80 h-60 rounded-xl border"
+            className="w-80 h-60 rounded-xl border shadow-lg"
             style={{ borderColor: "#2aa198", background: "#0f172a" }}
           />
-          <button onClick={takePhoto} className="btn-primary px-6 py-3">
+          <button
+            onClick={takePhoto}
+            className="btn-primary px-6 py-3 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+          >
             Take Photo
           </button>
           <canvas ref={canvasRef} className="hidden" />

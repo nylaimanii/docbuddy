@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 
 export default function UploadScreen({ onSubmit, error }) {
-  const [mode, setMode] = useState(null); // null | "text"
+  const [mode, setMode] = useState(null); // null | "text" | "camera"
   const [text, setText] = useState("");
   const [cameraStream, setCameraStream] = useState(null);
 
@@ -37,10 +37,19 @@ export default function UploadScreen({ onSubmit, error }) {
   }
 
   async function handleLiveCamera() {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    setCameraStream(stream);
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setCameraStream(stream);
+      setMode("camera");
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute("playsinline", true); // iOS fix
+        await videoRef.current.play();
+      }
+    } catch (err) {
+      alert("Camera access failed. Make sure you allowed camera permissions.");
+      console.error(err);
     }
   }
 
@@ -54,7 +63,9 @@ export default function UploadScreen({ onSubmit, error }) {
     ctx.drawImage(video, 0, 0);
 
     // Stop camera
-    cameraStream.getTracks().forEach(t => t.stop());
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((t) => t.stop());
+    }
     setCameraStream(null);
 
     // Mock OCR result
@@ -72,17 +83,10 @@ export default function UploadScreen({ onSubmit, error }) {
 
         <div className="flex flex-wrap gap-3 mb-6">
           <button
-            onClick={handleLiveCamera}
+            onClick={() => setMode("text")}
             className="px-4 py-2 rounded-xl border bg-white"
           >
-            Live Camera
-          </button>
-
-          <button
-            onClick={() => imageInputRef.current.click()}
-            className="px-4 py-2 rounded-xl border bg-white"
-          >
-            Photo Gallery
+            Paste Text
           </button>
 
           <button
@@ -93,10 +97,17 @@ export default function UploadScreen({ onSubmit, error }) {
           </button>
 
           <button
-            onClick={() => setMode("text")}
+            onClick={() => imageInputRef.current.click()}
             className="px-4 py-2 rounded-xl border bg-white"
           >
-            Paste Text
+            Photo Gallery
+          </button>
+
+          <button
+            onClick={handleLiveCamera}
+            className="px-4 py-2 rounded-xl bg-blue-500 text-white"
+          >
+            Live Camera
           </button>
         </div>
 
@@ -116,9 +127,14 @@ export default function UploadScreen({ onSubmit, error }) {
           onChange={handleImageUpload}
         />
 
-        {cameraStream && (
+        {mode === "camera" && (
           <div className="mb-4">
-            <video ref={videoRef} autoPlay className="w-full rounded-xl mb-2" />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full rounded-xl mb-2"
+            />
             <canvas ref={canvasRef} style={{ display: "none" }} />
             <button
               onClick={takePhoto}

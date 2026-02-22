@@ -5,7 +5,7 @@ export default function Results({ result, onBack }) {
 
   const score = result.score ?? 78;
 
-  let circleColor = "#2aa198"; // teal = good
+  let circleColor = "#22c55e"; // green
   let label = "Good Choice";
 
   if (score < 40) {
@@ -18,31 +18,20 @@ export default function Results({ result, onBack }) {
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        background: "#f7f1e3",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-        color: "#0f172a",
-      }}
+      className="min-h-screen w-full flex flex-col items-center justify-center px-6"
+      style={{ background: "#f7f1e3", color: "#0f172a" }}
     >
       {/* SCORE CIRCLE */}
       <div
+        className="flex items-center justify-center mb-4"
         style={{
           width: 180,
           height: 180,
           borderRadius: "50%",
           backgroundColor: circleColor,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           color: "white",
           fontSize: 48,
           fontWeight: "bold",
-          marginBottom: 16,
           boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
         }}
       >
@@ -50,29 +39,28 @@ export default function Results({ result, onBack }) {
       </div>
 
       {/* LABEL */}
-      <div style={{ fontSize: 24, marginBottom: 24 }}>{label}</div>
+      <div className="text-2xl mb-6 font-semibold">{label}</div>
 
       {/* SUMMARY BOX */}
       <div
+        className="w-full max-w-2xl mb-6"
         style={{
-          maxWidth: 700,
           background: "white",
           border: "1px solid #2aa198",
           borderRadius: 16,
           padding: 24,
-          marginBottom: 24,
           boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
         }}
       >
-        <h2 style={{ fontSize: 24, marginBottom: 12 }}>Summary</h2>
+        <h2 className="text-2xl mb-3 font-semibold">Summary</h2>
         <p style={{ lineHeight: 1.6 }}>{result.summary}</p>
 
         {result.pros && (
           <>
-            <h3 style={{ marginTop: 16 }}>Pros</h3>
-            <ul>
+            <h3 className="mt-4 font-semibold">Pros</h3>
+            <ul className="list-disc ml-6">
               {result.pros.map((p, i) => (
-                <li key={i}>• {p}</li>
+                <li key={i}>{p}</li>
               ))}
             </ul>
           </>
@@ -80,10 +68,10 @@ export default function Results({ result, onBack }) {
 
         {result.cons && (
           <>
-            <h3 style={{ marginTop: 16 }}>Cons</h3>
-            <ul>
+            <h3 className="mt-4 font-semibold">Cons</h3>
+            <ul className="list-disc ml-6">
               {result.cons.map((c, i) => (
-                <li key={i}>• {c}</li>
+                <li key={i}>{c}</li>
               ))}
             </ul>
           </>
@@ -93,23 +81,7 @@ export default function Results({ result, onBack }) {
       {/* BACK BUTTON */}
       <button
         onClick={onBack}
-        style={{
-          border: "2px solid #2aa198",
-          backgroundColor: "#ffffff",
-          color: "#0f172a",
-          fontWeight: 600,
-          borderRadius: 12,
-          padding: "12px 24px",
-          cursor: "pointer",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = "#2aa198";
-          e.target.style.color = "#ffffff";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = "#ffffff";
-          e.target.style.color = "#0f172a";
-        }}
+        className="btn-primary px-6 py-3 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
       >
         Analyze Another Document
       </button>
