@@ -14,8 +14,8 @@ export default function App() {
       if (!video.duration) return;
 
       // progress from 0 → 1
-     const percent = Math.min(video.currentTime / 3, 1);
-setProgress(percent);
+      const percent = Math.min(video.currentTime / 3, 1);
+      setProgress(percent);
     };
 
     video.addEventListener("timeupdate", updateProgress);
@@ -29,19 +29,7 @@ setProgress(percent);
     <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
 
       {/* Homepage */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "white",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: 40,
-        }}
-      >
-        HOME PAGE HERE
-      </div>
+      <HomePage />
 
       {/* Splash */}
       <motion.div
