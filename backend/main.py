@@ -1,83 +1,42 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import json
-import os
-
-# Gemini SDK (deprecated warning is OK for now)
-import google.generativeai as genai
-
-# ✅ FIXED IMPORT
-from backend.prompt_logic import build_analysis_prompt
 
 app = FastAPI()
 
-# CORS so your React frontend can call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for hackathon/demo; lock this down later
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure Gemini
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-model = genai.GenerativeModel("gemini-1.5-flash")
 
 class AnalyzeRequest(BaseModel):
     text: str
 
 @app.post("/analyze")
-async def analyze_document(req: AnalyzeRequest):
+async def analyze(req: AnalyzeRequest):
     text = req.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="No text provided")
 
-    prompt = build_analysis_prompt(text)
-
-    try:
-        # Call Gemini
-        response = model.generate_content(prompt)
-
-        # Get raw text from model
-        raw_text = response.text.strip()
-
-        # Try to parse JSON
-        data = json.loads(raw_text)
-
-        # Ensure required fields exist (basic safety)
-        result = {
-            "summary": data.get("summary", "No summary available."),
-            "pros": data.get("pros", []),
-            "cons": data.get("cons", []),
-            "deadlines": data.get("deadlines", []),
-            "futureMath": data.get("futureMath", {"monthly": 0, "yearly": 0}),
+    # Mock AI response for now (stable demo)
+    return {
+        "summary": "This document looks like a rental or financial agreement explaining payments, rules, and fees.",
+        "pros": [
+            "Costs are stated clearly",
+            "Rules are written out"
+        ],
+        "cons": [
+            "Late fees can add up",
+            "Long commitment"
+        ],
+        "deadlines": [
+            "Rent due on the 1st of each month",
+            "Late fee after 5 days"
+        ],
+        "futureMath": {
+            "monthly": 1200,
+            "yearly": 14400
         }
-
-        return result
-
-    except Exception as e:
-        # Fallback mock data so demo never breaks
-        return {
-            "summary": "This document appears to be a financial agreement that explains payments, fees, and basic rules you need to follow.",
-            "pros": [
-                "The main costs are clearly stated.",
-                "The agreement explains your responsibilities upfront."
-            ],
-            "cons": [
-                "There are extra fees if you pay late.",
-                "Some terms could cost you more money over time."
-            ],
-            "deadlines": [
-                "Rent is due on the 1st of every month.",
-                "Late fees apply after 5 days."
-            ],
-            "futureMath": {
-                "monthly": 1200,
-                "yearly": 14400
-            }
-        }
+    }
