@@ -1,96 +1,180 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
-  return (
-    <div className="relative w-screen h-screen overflow-hidden">
+  const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
-      {/* 🌿 FULLSCREEN GIF BACKGROUND */}
-      <img
-        src="/totoro.gif"
-        alt="background"
-        className="absolute inset-0 w-full h-full object-cover"
+  const [mode, setMode] = useState(null); // "text" | "camera" | null
+  const [text, setText] = useState("");
+  const [stream, setStream] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+
+  // 🔑 When stream or mode changes, attach stream to video
+  useEffect(() => {
+    if (mode === "camera" && stream && videoRef.current) {
+      const video = videoRef.current;
+      video.srcObject = stream;
+      video.onloadedmetadata = () => {
+        video.play().catch((e) => console.error("Video play error:", e));
+      };
+    }
+  }, [mode, stream]);
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      setStream(null);
+    }
+  };
+
+  const handlePasteText = () => {
+    stopCamera();
+    setMode("text");
+  };
+
+  const handleUploadFile = () => {
+    stopCamera();
+    fileInputRef.current.click();
+  };
+
+  const handlePhotoGallery = () => {
+    stopCamera();
+    galleryInputRef.current.click();
+  };
+
+  const handleLiveCamera = async () => {
+    stopCamera();
+    setCapturedImage(null);
+
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+
+      setStream(mediaStream);
+      setMode("camera");
+    } catch (err) {
+      console.error("Camera error:", err);
+      alert(
+        "Could not access camera. Please allow camera permission in your browser (click the lock icon in the address bar)."
+      );
+    }
+  };
+
+  const takePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    if (!width || !height) {
+      alert("Camera not ready yet. Please wait a second and try again.");
+      return;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, width, height);
+
+    const imageData = canvas.toDataURL("image/png");
+    setCapturedImage(imageData);
+
+    stopCamera();
+    setMode(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-gray-600 flex flex-col items-center justify-center px-6">
+      <h1
+        className="text-5xl font-semibold mb-12 text-gray-800"
+        style={{ fontFamily: "Strongmark" }}
+      >
+        DocBuddy
+      </h1>
+
+      {/* Buttons Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-xl mb-10">
+        <button onClick={handlePasteText} className="btn-primary h-24 text-xl" style={{ fontFamily: "Corn" }}>
+          Paste Text
+        </button>
+
+        <button onClick={handleUploadFile} className="btn-primary h-24 text-xl" style={{ fontFamily: "Corn" }}>
+          Upload File
+        </button>
+
+        <button onClick={handleLiveCamera} className="btn-primary h-24 text-xl" style={{ fontFamily: "Corn" }}>
+          Live Camera
+        </button>
+
+        <button onClick={handlePhotoGallery} className="btn-primary h-24 text-xl" style={{ fontFamily: "Corn" }}>
+          Photo Gallery
+        </button>
+      </div>
+
+      {/* Hidden inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) alert(`Selected file: ${file.name}`);
+        }}
       />
 
-      {/* Optional soft overlay */}
-      <div className="absolute inset-0 bg-white/10" />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) alert(`Selected image: ${file.name}`);
+        }}
+      />
 
-      {/* 🌟 GLASS CONTAINER WRAPPER */}
-      <div className="relative z-10 flex items-center justify-center h-full">
-
-        {/* 🌟 GLASS BOX */}
-        <div
-          className="
-            relative
-            w-[750px]
-            p-14
-            pt-20
-            rounded-3xl
-            bg-white/10
-            backdrop-blur-xl
-            border border-white/30
-            shadow-2xl
-          "
-        >
-
-          {/* 🧩 FAVICON OVERLAY */}
-          <img
-            src="/favicon.png"
-            alt="icon"
-            className="
-              absolute
-              -top-10
-              -left-10
-              w-32
-              h-32
-              rounded-full
-              object-cover
-              border border-white/40
-              shadow-md
-            "
+      {/* Paste Text Mode */}
+      {mode === "text" && (
+        <div className="w-full max-w-2xl">
+          <textarea
+            className="input-box h-48"
+            placeholder="Paste or type your text here..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
           />
-
-          {/* 🏷 FLOATING TITLE */}
-          <h1
-            className="
-              absolute
-              -top-8
-              left-1/2
-              -translate-x-1/2
-              text-8xl
-              font-bold
-              text-grey
-            "
-            style={{ fontFamily: "Strongmark" }}
-          >
-            Doc Buddy
-          </h1>
-
-          {/* 🔘 BUTTON GRID */}
-          <div className="grid grid-cols-2 gap-10">
-            {["Paste Text", "Upload File", "Live Camera", "Photo Gallery"].map((text) => (
-              <button
-                key={text}
-                className="
-                  text-2xl
-                  py-10
-                  rounded-2xl
-                  border border-white/40
-                  bg-white/5
-                  backdrop-blur-md
-                  text-white
-                  hover:bg-white/20
-                  transition
-                  duration-300
-                "
-                style={{ fontFamily: "Corn" }}
-              >
-                {text}
-              </button>
-            ))}
-          </div>
-
         </div>
-      </div>
+      )}
+
+      {/* Camera Mode */}
+      {mode === "camera" && (
+        <div className="flex flex-col items-center gap-4">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-80 h-60 bg-black rounded-xl border"
+          />
+          <button onClick={takePhoto} className="btn-primary">
+            Take Photo
+          </button>
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
+
+      {/* Show captured image */}
+      {capturedImage && (
+        <div className="mt-6 flex flex-col items-center">
+          <p className="mb-2 text-gray-700">Captured document photo:</p>
+          <img src={capturedImage} alt="Captured" className="w-80 rounded-xl border" />
+        </div>
+      )}
     </div>
   );
 }

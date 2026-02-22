@@ -1,20 +1,27 @@
-import React, { forwardRef } from "react";
+import React from "react";
 
-const IntroSplash = forwardRef((props, ref) => {
+export default function IntroSplash({ onStart }) {
   return (
-    <video
-      ref={ref}
-      src="/splash1.mp4"
-      autoPlay
-      muted
-      playsInline
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-      }}
-    />
-  );
-});
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center text-gray-600 px-6">
+      {/* Center Logo */}
+      <img
+        src="/favicon.png"
+        alt="DocBuddy Logo"
+        className="w-40 h-40 mb-8"
+      />
 
-export default IntroSplash;
+      {/* App Name */}
+      <h1 className="text-4xl font-semibold mb-8 text-gray-800">
+        DocBuddy
+      </h1>
+
+      {/* Get Started Button */}
+      <button
+        onClick={onStart}
+        className="btn-primary text-lg px-8 py-4"
+      >
+        Get Started
+      </button>
+    </div>
+  );
+}
