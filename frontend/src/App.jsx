@@ -1,52 +1,62 @@
-import React, { useState } from "react";
-import Splash from "./components/Splash";
-import UploadScreen from "./components/UploadScreen";
-import Processing from "./components/Processing";
-import Results from "./components/Results";
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import IntroSplash from "./components/IntroSplash";
+import HomePage from "./components/HomePage";
 
 export default function App() {
-  const [step, setStep] = useState("splash"); // splash | upload | processing | results
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const videoRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
-  async function analyzeText(text) {
-    setStep("processing");
-    setError(null);
+  useEffect(() => {
+    const video = videoRef.current;
 
-    try {
-      const res = await fetch("http://127.0.0.1:8000/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+    const updateProgress = () => {
+      if (!video.duration) return;
 
-      if (!res.ok) throw new Error("Server error");
+      // progress from 0 → 1
+     const percent = Math.min(video.currentTime / 3, 1);
+setProgress(percent);
+    };
 
-      const data = await res.json();
-      setResult(data);
-      setStep("results");
-    } catch (e) {
-      console.error(e);
-      setError("Failed to reach server. Is the backend running?");
-      setStep("upload");
-    }
-  }
+    video.addEventListener("timeupdate", updateProgress);
 
-  if (step === "splash") {
-    return <Splash onContinue={() => setStep("upload")} />;
-  }
+    return () => {
+      video.removeEventListener("timeupdate", updateProgress);
+    };
+  }, []);
 
-  if (step === "upload") {
-    return <UploadScreen onSubmit={analyzeText} error={error} />;
-  }
+  return (
+    <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
 
-  if (step === "processing") {
-    return <Processing />;
-  }
+      {/* Homepage */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "white",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: 40,
+        }}
+      >
+        HOME PAGE HERE
+      </div>
 
-  if (step === "results") {
-    return <Results result={result} onBack={() => setStep("upload")} />;
-  }
+      {/* Splash */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "100%",
+          overflow: "hidden",
+          width: `${100 - progress * 100}%`,
+        }}
+      >
+        <IntroSplash ref={videoRef} />
+      </motion.div>
 
-  return null;
+    </div>
+  );
 }
