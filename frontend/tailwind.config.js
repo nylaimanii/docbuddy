@@ -4,15 +4,8 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
-  theme: { //Test line 2
+  theme: {
     extend: {
-      theme: {
-  extend: {
-    fontFamily: {
-      yeseva: ["Yeseva One", "serif"],
-    },
-  },
-},
       colors: {
         primary: "#0F766E",
         primaryLight: "#14B8A6",
@@ -29,6 +22,9 @@ export default {
       },
       boxShadow: {
         soft: "0 10px 30px rgba(0,0,0,0.08)",
+      },
+      fontFamily: {
+        yeseva: ["Yeseva One", "serif"],
       },
     },
   },

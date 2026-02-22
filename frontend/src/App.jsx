@@ -10,13 +10,10 @@ export default function App() {
   const [result, setResult] = useState(null);
 
   const analyzeInput = async (payload) => {
-    // Go to loading screen
     setPage("loading");
 
-    // ⏳ Simulate backend processing (replace later with real API call)
     await new Promise((resolve) => setTimeout(resolve, 2500));
 
-    // 🧠 Fake result (so your app actually works end-to-end)
     const fakeResult = {
       summary:
         "This document appears to contain important information. Key sections were detected and summarized. No critical red flags were found in this demo analysis.",
