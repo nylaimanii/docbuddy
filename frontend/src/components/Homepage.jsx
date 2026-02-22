@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function HomePage() {
+export default function HomePage({ onAnalyze }) {
   const fileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -9,15 +9,13 @@ export default function HomePage() {
   const [mode, setMode] = useState(null); // "text" | "camera" | null
   const [text, setText] = useState("");
   const [stream, setStream] = useState(null);
-  const [capturedImage, setCapturedImage] = useState(null);
 
-  // 🔑 When stream or mode changes, attach stream to video
   useEffect(() => {
     if (mode === "camera" && stream && videoRef.current) {
       const video = videoRef.current;
       video.srcObject = stream;
       video.onloadedmetadata = () => {
-        video.play().catch((e) => console.error("Video play error:", e));
+        video.play().catch(() => {});
       };
     }
   }, [mode, stream]);
@@ -46,22 +44,24 @@ export default function HomePage() {
 
   const handleLiveCamera = async () => {
     stopCamera();
-    setCapturedImage(null);
-
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
         audio: false,
       });
-
       setStream(mediaStream);
       setMode("camera");
     } catch (err) {
-      console.error("Camera error:", err);
-      alert(
-        "Could not access camera. Please allow camera permission in your browser (click the lock icon in the address bar)."
-      );
+      alert("Could not access camera. Please allow camera permission.");
     }
+  };
+
+  const submitText = () => {
+    if (!text.trim()) {
+      alert("Please enter some text first.");
+      return;
+    }
+    onAnalyze({ type: "text", data: text });
   };
 
   const takePhoto = () => {
@@ -71,11 +71,7 @@ export default function HomePage() {
 
     const width = video.videoWidth;
     const height = video.videoHeight;
-
-    if (!width || !height) {
-      alert("Camera not ready yet. Please wait a second and try again.");
-      return;
-    }
+    if (!width || !height) return;
 
     canvas.width = width;
     canvas.height = height;
@@ -83,10 +79,10 @@ export default function HomePage() {
     ctx.drawImage(video, 0, 0, width, height);
 
     const imageData = canvas.toDataURL("image/png");
-    setCapturedImage(imageData);
-
     stopCamera();
     setMode(null);
+
+    onAnalyze({ type: "camera", data: imageData });
   };
 
   return (
@@ -98,7 +94,6 @@ export default function HomePage() {
         DocBuddy
       </h1>
 
-      {/* Buttons Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-xl mb-10">
         <button onClick={handlePasteText} className="btn-primary h-24 text-xl" style={{ fontFamily: "Corn" }}>
           Paste Text
@@ -124,7 +119,7 @@ export default function HomePage() {
         className="hidden"
         onChange={(e) => {
           const file = e.target.files[0];
-          if (file) alert(`Selected file: ${file.name}`);
+          if (file) onAnalyze({ type: "file", data: file });
         }}
       />
 
@@ -135,19 +130,22 @@ export default function HomePage() {
         className="hidden"
         onChange={(e) => {
           const file = e.target.files[0];
-          if (file) alert(`Selected image: ${file.name}`);
+          if (file) onAnalyze({ type: "image", data: file });
         }}
       />
 
       {/* Paste Text Mode */}
       {mode === "text" && (
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-2xl flex flex-col gap-4">
           <textarea
             className="input-box h-48"
             placeholder="Paste or type your text here..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
+          <button onClick={submitText} className="btn-primary self-end px-6 py-3">
+            Analyze Text
+          </button>
         </div>
       )}
 
@@ -165,14 +163,6 @@ export default function HomePage() {
             Take Photo
           </button>
           <canvas ref={canvasRef} className="hidden" />
-        </div>
-      )}
-
-      {/* Show captured image */}
-      {capturedImage && (
-        <div className="mt-6 flex flex-col items-center">
-          <p className="mb-2 text-gray-700">Captured document photo:</p>
-          <img src={capturedImage} alt="Captured" className="w-80 rounded-xl border" />
         </div>
       )}
     </div>
