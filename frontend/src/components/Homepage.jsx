@@ -18,16 +18,19 @@ export default function HomePage() {
       <div className="relative z-10 flex items-center justify-center h-full">
 
         {/* 🌟 GLASS BOX */}
-        <div className="
-          relative
-          w-[750px]
-          p-14
-          rounded-3xl
-          bg-white/10
-          backdrop-blur-xl
-          border border-white/30
-          shadow-2xl
-        ">
+        <div
+          className="
+            relative
+            w-[750px]
+            p-14
+            pt-20
+            rounded-3xl
+            bg-white/10
+            backdrop-blur-xl
+            border border-white/30
+            shadow-2xl
+          "
+        >
 
           {/* 🧩 FAVICON OVERLAY */}
           <img
@@ -36,23 +39,31 @@ export default function HomePage() {
             className="
               absolute
               -top-10
-              -left-6
-              w-30
-              h-40
-              object-contain
+              -left-10
+              w-32
+              h-32
               rounded-full
-              p-2
-              shadow-lg
+              object-cover
+              border border-white/40
+              shadow-md
             "
           />
 
-          {/* 🔤 HEADING */}
-         <h1
-  className="text-7xl ml-32"
-  style={{ fontFamily: "Strongmark" }}
->
-  DocBuddy
-</h1>
+          {/* 🏷 FLOATING TITLE */}
+          <h1
+            className="
+              absolute
+              -top-8
+              left-1/2
+              -translate-x-1/2
+              text-8xl
+              font-bold
+              text-grey
+            "
+            style={{ fontFamily: "Strongmark" }}
+          >
+            Doc Buddy
+          </h1>
 
           {/* 🔘 BUTTON GRID */}
           <div className="grid grid-cols-2 gap-10">
@@ -60,18 +71,18 @@ export default function HomePage() {
               <button
                 key={text}
                 className="
-                  font-yeseva
-                  text-lg
+                  text-2xl
                   py-10
                   rounded-2xl
                   border border-white/40
                   bg-white/5
                   backdrop-blur-md
-                  text-black
+                  text-white
                   hover:bg-white/20
                   transition
                   duration-300
                 "
+                style={{ fontFamily: "Corn" }}
               >
                 {text}
               </button>
@@ -79,9 +90,7 @@ export default function HomePage() {
           </div>
 
         </div>
-
       </div>
-
     </div>
   );
 }

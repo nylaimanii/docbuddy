@@ -17,6 +17,26 @@
   src: url("./assets/Corn.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
+  @font-face {
+  font-family: "WinterDraw";
+  src: url("./assets/Winter Draw.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "cp";
+  src: url("./assets/cp.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "pk";
+  src: url("./assets/pk.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
 }
 @tailwind base;
 @tailwind components;
